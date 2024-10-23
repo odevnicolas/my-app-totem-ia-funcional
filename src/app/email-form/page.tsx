@@ -1,23 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import emailjs from 'emailjs-com';
+import { useEffect, useState } from "react";
+import { useSearchParams } from 'next/navigation'; 
+import emailjs from 'emailjs-com'; 
 
 export default function EmailForm() {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<string | null>(null);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+
+  const searchParams = useSearchParams(); 
+
+  useEffect(() => {
+    const imageSrcParam = searchParams.get('imageSrc');
+    if (imageSrcParam) {
+      setImageSrc(imageSrcParam);
+    }
+  }, [searchParams]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const capturedImage = localStorage.getItem('capturedImage');
-
-    if (capturedImage) {
+    if (imageSrc) {
       const templateParams = {
         email,
         message,
-        capturedImage, 
+        capturedImage: imageSrc, 
       };
 
       emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', templateParams, 'YOUR_USER_ID')
@@ -30,7 +39,6 @@ export default function EmailForm() {
           setStatus('error');
         });
     } else {
-      console.error("Imagem não encontrada");
       setStatus('error');
     }
   };

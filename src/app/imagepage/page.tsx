@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react'; // Importar o QRCodeSVG
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { QRCodeSVG } from 'qrcode.react';
 
 export default function ImageDisplay() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const router = useRouter();
-  const [timer, setTimer] = useState<number>(180);
+  const [timer, setTimer] = useState<number>(180); // Timer para 3 minutos
 
   useEffect(() => {
     const storedImage = localStorage.getItem('capturedImage');
@@ -16,11 +16,12 @@ export default function ImageDisplay() {
       setImageSrc(storedImage);
     }
 
+    // Iniciar o timer para voltar à tela inicial após 3 minutos
     const countdown = setInterval(() => {
       setTimer(prev => {
         if (prev === 0) {
           clearInterval(countdown);
-          router.push("/"); 
+          router.push("/"); // Voltar à tela inicial após 3 minutos
         }
         return prev - 1;
       });
@@ -29,11 +30,19 @@ export default function ImageDisplay() {
     return () => clearInterval(countdown);
   }, [router]);
 
+  // Gerar o valor do QR code com a imagem base64 embutida
+  const qrCodeLink = imageSrc
+    ? `${window.location.origin}/email-form?imageSrc=${encodeURIComponent(imageSrc)}`
+    : null;
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-cover bg-center bg-no-repeat relative">
-      <div className="absolute top-4 left-4">
-        <QRCodeSVG value={`${window.location.origin}/email-form`} size={100} />
-      </div>
+      {/* QR Code que redireciona para a página do formulário, com a imagem embutida na URL */}
+      {qrCodeLink && (
+        <div className="absolute top-4 left-4">
+          <QRCodeSVG value={qrCodeLink} size={100} />
+        </div>
+      )}
 
       <img
         src="/topcaixa.svg"
