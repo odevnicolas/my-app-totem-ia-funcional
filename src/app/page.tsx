@@ -1,45 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [filter, setFilter] = useState<string>("none");
-  const [currentFilterIndex, setCurrentFilterIndex] = useState<number>(-1); // Nenhum filtro ativo por padrão
+  const [currentFilterIndex, setCurrentFilterIndex] = useState<number>(-1);
   const [overlayImage, setOverlayImage] = useState<string>("");
-  const [isFullscreen, setIsFullscreen] = useState<boolean>(false); // Estado para fullscreen
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const router = useRouter(); 
 
   const filters = [
-    {
-      name: "Filtro Ceará",
-      filter: "none",
-      svg: "/filterceara.svg",
-      overlay: "/Ceara.png",
-    },
-    {
-      name: "Filtro Fortaleza",
-      filter: "none",
-      svg: "/filterfortaleza.svg",
-      overlay: "/Fortaleza.png",
-    },
-    {
-      name: "Filtro André Fernandes",
-      filter: "none",
-      svg: "/filterandrefernandes.svg",
-      overlay: "/Andre.png",
-    },
-    {
-      name: "Filtro Evandro Leitão",
-      filter: "none",
-      svg: "/leitao.svg",
-      overlay: "/leitao.png",
-    },
-    {
-      name: "Filtro s4S e STS",
-      filter: "none",
-      svg: "/s4s.svg",
-      overlay: "/S4s.png",
-    },
+    { name: "Filtro Ceará", filter: "none", svg: "/filterceara.svg", overlay: "/Ceara.png" },
+    { name: "Filtro Fortaleza", filter: "none", svg: "/filterfortaleza.svg", overlay: "/Fortaleza.png" },
+    { name: "Filtro André Fernandes", filter: "none", svg: "/filterandrefernandes.svg", overlay: "/Andre.png" },
+    { name: "Filtro Evandro Leitão", filter: "none", svg: "/leitao.svg", overlay: "/leitao.png" },
+    { name: "Filtro s4S e STS", filter: "none", svg: "/s4s.svg", overlay: "/S4s.png" }
   ];
 
   useEffect(() => {
@@ -69,7 +46,7 @@ export default function Home() {
 
   const applyFilter = (index: number) => {
     setCurrentFilterIndex(index);
-    setIsFullscreen(true); // Entrar em tela cheia quando o filtro for selecionado
+    setIsFullscreen(true);
   };
 
   const handleCapture = () => {
@@ -84,24 +61,25 @@ export default function Home() {
         img.src = overlayImage;
         img.onload = () => {
           context.drawImage(img, 0, 0, canvas.width, canvas.height);
-          downloadImage(canvas);
+          const capturedImageData = canvas.toDataURL("image/png");
+          
+          localStorage.setItem('capturedImage', capturedImageData);
+
+          router.push('/imagepage');
         };
       } else {
-        downloadImage(canvas);
+        const capturedImageData = canvas.toDataURL("image/png");
+        
+        localStorage.setItem('capturedImage', capturedImageData);
+
+        router.push('/imagepage');
       }
     }
   };
 
-  const downloadImage = (canvas: HTMLCanvasElement) => {
-    const link = document.createElement("a");
-    link.href = canvas.toDataURL("image/png");
-    link.download = "photo.png";
-    link.click();
-  };
-
   const handleBack = () => {
-    setIsFullscreen(false); // Voltar para a tela anterior
-    setCurrentFilterIndex(-1); // Resetar o filtro
+    setIsFullscreen(false);
+    setCurrentFilterIndex(-1);
   };
 
   return (
@@ -123,10 +101,8 @@ export default function Home() {
         />
       )}
 
-      {/* Se não estiver em tela cheia, exibir os filtros */}
       {!isFullscreen && (
         <>
-          {/* Container com texto principal */}
           <div className="flex justify-center mt-40 ml-[23%] w-[572px] h-32 items-center bg-[#1F1F1FE5] rounded-[60px]">
             <p className="text-white text-center font-poppins text-[32px] font-semibold leading-[48px] tracking-[0.02em]">
               Crie sua foto interativa com a{" "}
@@ -136,12 +112,10 @@ export default function Home() {
 
           <div className="flex-grow"></div>
 
-          {/* Exibindo o logo 'sia.svg' */}
           <div className="flex justify-center">
             <img src="/sia.svg" alt="SIA Logo" className="w-[750px] h-[750px] -mb-64" />
           </div>
 
-          {/* Filtros exibidos lado a lado */}
           <div className="relative w-full flex justify-center items-center mt-10 mb-12 mx-auto space-x-4">
             {filters.map((filterItem, index) => (
               <div
@@ -160,18 +134,15 @@ export default function Home() {
         </>
       )}
 
-      {/* Se estiver em tela cheia, exibir os botões */}
       {isFullscreen && (
         <>
-          {/* Botão para capturar a foto */}
           <button
             onClick={handleCapture}
-            className="absolute bottom-10 left-1/2 transform -translate-x-1/2 "
+            className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
           >
             <img src="/shutter.svg" alt="Shutter Button" className="w-36 h-36" />
           </button>
 
-          {/* Botão para voltar */}
           <button
             onClick={handleBack}
             className="absolute -top-8 left-10 p-4 rounded-full"

@@ -9,9 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "emailjs": "^4.0.3",
+    "emailjs-com": "^3.2.0",
     "gl-react": "^5.2.0",
     "gl-react-dom": "^5.2.1",
     "next": "15.0.0",
+    "qrcode.react": "^4.1.0",
     "react": "19.0.0-rc-65a56d0e-20241020",
     "react-dom": "19.0.0-rc-65a56d0e-20241020"
   },
